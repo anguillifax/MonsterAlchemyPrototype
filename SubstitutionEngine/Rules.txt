@@ -1,0 +1,21 @@
+# Base Recipes
+meat  ->  mass 
+bone  ->  rigid, sharp 
+
+# Conversions
+rigid, mass  ->  resilience, resilience 
+
+
+
+# ----- Error Examples -----
+
+# Bad split symbol
+<-
+
+# Unrecognized symbol
+a -> b
+
+# No input
+-> meat
+
+

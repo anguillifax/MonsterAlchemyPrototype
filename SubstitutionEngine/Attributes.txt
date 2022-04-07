@@ -1,0 +1,11 @@
+# Base Ingredients
+meat
+bone
+
+# Base Attributes
+mass
+rigid
+sharp
+
+# Combinations
+resilience

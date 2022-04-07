@@ -1,0 +1,24 @@
+# ----- Checked Errors -----
+
+# Bad split symbol
+<-
+
+# Unrecognized symbol
+a -> b
+
+# No input
+-> meat
+
+# Self-mapping
+scary -> scary
+
+# Extraneous commas
+,, -> scary,
+
+
+# ----- Legal (and dangerous) -----
+
+redfish -> bluefish
+bluefish -> redfish
+
+# (try inputting "redfish")
