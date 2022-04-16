@@ -3,6 +3,7 @@
 
 
 // Data-only shared type.
+// Unique per spawned entity.
 [Serializable] public class EntityState {
 
 	public int healthAmount;
@@ -58,6 +59,7 @@ public static class Validator {
 
 
 // Provides initial values.
+// Unique per prefab. Possibly shared between prefabs.
 public class EntityAsset : ScriptableObject {
 
 	// Discourage reassignment.
@@ -72,6 +74,7 @@ public class EntityAsset : ScriptableObject {
 
 
 // Exposes mutable configuration for art/sound.
+// Unique per instance.
 public class EntityCustomization {
 	public UnityEngine.Events.Event burnMultiplierDecrease;
 }
@@ -101,19 +104,37 @@ public abstract class Effect {
 
 
 
-// Singleton.
-public class EffectsAsset : ScriptableObject {
+// Allows swapping out effects lists for different game modes / testing.
+public interface IEffectList {
+	// Specify execution order.
+	Effect[] Effects { get; }
+}
 
-	// Explicitly list out effects.
+// Singleton.
+public class EffectListAsset : ScriptableObject, IEffectList {
+
+	// Enables configuration in-editor.
 	public EffectFlammable flammable;
 	public EffectBurning burning;
 	// etc.
 
-	// Specify execution order.
-	public Effect[] Effects => new Effect[] {
-		flammable,
-		burning,
-	};
+	private Effect[] cache;
+
+	Effect[] IEffectList.Effects {
+		get {
+			// Lazy initialization
+			if (cache == null) {
+				cache = new Effect[] {
+					flammable,
+					burning,
+				};
+				// #if UNITY_EDITOR, warn if unincluded variables.
+			}
+
+			return cache;
+		}
+	}
+	
 }
 
 
@@ -121,12 +142,15 @@ public class EffectsAsset : ScriptableObject {
 // Base type for all systemic objects.
 public class SystemicEntity : MonoBehaviour {
 	public EntityAsset initialState;
-	public EffectsAsset effects;
+	public EffectListAsset effectListAsset;
 	public EntityCustomization customization;
 	public EntityState state;
+	public IEffectList effects;
 
 	void Awake() {
 		state = initialState.CopyState();
+
+		effects = (IEffectList)effectListAsset;
 
 		foreach (Effect e in effects.Effects) {
 			e.State = state;
@@ -138,6 +162,7 @@ public class SystemicEntity : MonoBehaviour {
 		Validator.ValidateAndThrow(state);
 		foreach (Effect e in effects.Effects) {
 			e.Update();
+			// if AggressiveDebug -> Validate(state); on error, log e.GetType().Name;
 		}
 	}
 }
