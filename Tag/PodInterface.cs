@@ -1,11 +1,10 @@
 // namespace GameJam.Systemic
 
-
-
 // Data-only shared type.
 // Unique per spawned entity.
 [Serializable] public class EntityState {
 
+	// Native API
 	public int healthAmount;
 	public int waterAmount;
 	public bool flammable;
@@ -13,6 +12,11 @@
 	public int burningMult;
 	public float burningTimer;
 	public bool immobilize
+
+	// Queries
+	public bool HasHealth => healthAmount > 0;
+	public bool HasFlammable => flammable;
+	public int BurningCount => burning;
 
 	// Sets valid defaults.
 	public EntityState() {
